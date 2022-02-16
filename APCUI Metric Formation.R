@@ -4,12 +4,7 @@ libraries("car", "data.table", "dplyr", "formattable", "foreign", "forcats", "fo
           "ggplot2", "here", "knitr", "qwraps2", "RcmdrMisc", "tableone", "tidyr", 
           "sjPlot", "sjmisc", "sjlabelled", "tidyverse", "weights", "tableone")
 
-replicate <- function(dataset){
-  return(dataset)
-}
-
-dataset <- data.table(replicate(data_us_2020_sample)) #When working with full dataset, replace argument of replicate function
-
+dataset <- data_us_2020_sample
 # *-----------------------------------------------------------------------*
 #   * PART 1: VARIABLE DEFINITIONS *
 #   *-----------------------------------------------------------------------*
@@ -81,5 +76,23 @@ BWGRAMS <- dataset$DBWT
 #   * *
 #   *-----------------------------------------------------------------------*;
 
-dataset[, NPCVBC =:
-          ifelse(NPCVBC < 0 | NPCVBC > 90, NA, NPCVBC)]
+dataset[, NPCVBC :=
+          ifelse(PREVIS < 0 | PREVIS > 90, NA, PREVIS)] #ACceptable Values 0-90
+
+dataset[, MPCBBC :=
+          ifelse(PRECARE < 0 | PRECARE > 10, NA, PRECARE)] #Acceptable Values 0-10
+
+dataset[, GAGEBC :=
+          ifelse(COMBGEST < 18 | COMBGEST > 50, NA, COMBGEST)] #Acceptable values 18-50
+
+dataset[, MPCBBC :=
+          ifelse(is.null(GAGEBC) & (MPCBBC > (GAGEBC/4)), NA, MPCBBC)] #Omits inconsistent values of MPCBBC OR GAGEBC
+
+dataset[, SEXBC :=
+          ifelse(SEX == 'M', 1, 2)] #Acceptable values 1 (MALE),2 (FEMALE) - Unknown SEX = FEMALE (2)
+
+dataset[, BWGRAMS :=
+          ifelse(DBWT < 400 | DBWT > 6000, NA, DBWT)] #Acceptable values 400-6000
+
+#Note (2/15): Resume code translation from Part 3b of document
+
