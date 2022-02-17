@@ -76,6 +76,8 @@ BWGRAMS <- dataset$DBWT
 #   * *
 #   *-----------------------------------------------------------------------*;
 
+#Note: This code creates columns named NPCVBC, MPCBBC, etc. 
+
 dataset[, NPCVBC :=
           ifelse(PREVIS < 0 | PREVIS > 90, NA, PREVIS)] #Acceptable Values 0-90
 
@@ -94,5 +96,79 @@ dataset[, SEXBC :=
 dataset[, BWGRAMS :=
           ifelse(DBWT < 400 | DBWT > 6000, NA, DBWT)] #Acceptable values 400-6000
 
-#Note (2/15): Resume code translation from Part 3b of document
+# *-----------------------------------------------------------------------*
+#   * PART 3b: NO PRENATAL CARE CODES *
+#   *-----------------------------------------------------------------------*
+#   * *
+#   * Distinguishing between no prenatal care (0) and missing prenatal *
+#   * care (.) is difficult because of known inconsistent coding *
+#   * practices used on various state and national data sets. The *
+#   * difficulty is most evident in the coding of month prenatal care *
+#   * visits began, wherein the code "0" (MPCBBC=0) may have multiple *
+#   * meanings. By contrast, the code "0" for number of PNC visits *
+#   * (NPCVBC=0) generally means no PNC. *
+#   * *
+#   * From this revision (3) onward, the default assumption *
+#   * of the APNCU Index is that no PNC will be assumed if: *
+#   * 1. the number of PNC visits (NPCVBC) = 0 AND month PNC *
+#   * began (MPCBBC) = 0 or . (missing), OR *
+#   * 2. the month PNC began (MPCBBC) = 0 AND number of visits *
+#   * (NPCVBC) = 0 or . (missing) *
+#   * *
+#   * The default assumptions are written into the program. *
+#   * If the default assumptions are not valid for your data set, *
+#   * change the SAS code below to accommodate the distinctive coding *
+#   * pattern for NO PNC in your data set. *
+#   * *
+#   *-----------------------------------------------------------------------*
+#   
+#   *** Each of the next 4 questions is followed by a line of SAS code.
+# Edit each line of SAS code as follows:
+#   If the answer is YES- remove asterisk from SAS code for the item.
+# If the answer is NO- do not remove asterisk from SAS code for the item.
+# *------------------------------------------------------------------------*
+#   * (1) Does the coding MPCBBC = 0 indicate that PNC began in the zero *
+#   * month of PNC (e.g., PNC began before month one)? * #Note: Yes
+#   *------------------------------------------------------------------------*
+dataset[, MPCBBC :=
+          ifelse(MPCBBC == 0, 1, MPCBBC)] #Turns all 0s into 1s
 
+# *------------------------------------------------------------------------*
+#   * (2) Does the coding MPCBBC = 0 indicate that PNC began in month 10 or *
+#   * later? * #Note: No
+#   *------------------------------------------------------------------------*
+#   *** Edit next line as needed;
+# * IF MPCBBC = 0 THEN MPCBBC = 10;
+# *------------------------------------------------------------------------*
+#   * (3) Does the coding MPCBBC = 0 indicate that data for month PNC began *
+#   * are unknown or missing? * #Note: No
+#   *------------------------------------------------------------------------*
+#   *** Edit next line as needed;
+# * IF MPCBBC = 0 THEN MPCBBC = . ;
+# *------------------------------------------------------------------------*
+#   * (4) Does the coding NPCVBC = 0 indicate that the number of PNC *
+#   * visits = unknown or missing? *
+#   *------------------------------------------------------------------------*
+#   *** Edit next line as needed;
+# * IF NPCVBC = 0 THEN NPCVBC = . ;
+# *** End of user edits;
+
+#Note: All missing values were defined in Step 3A of code translation
+
+# *-----------------------------------------------------------------------*
+#   * RECODES FOR NO PRENATAL CARE CODES *
+#   *-----------------------------------------------------------------------*
+
+dataset[, NPCVBC :=
+          ifelse((NPCVBC == 0 & MPCBBC >= 1) | (MPCBBC == 0 & NPCVBC >= 1), NA, NPCVBC)]
+
+dataset[, MPCBBC :=
+          ifelse((NPCVBC == 0 & MPCBBC >= 1) | (MPCBBC == 0 & NPCVBC >= 1), NA, MPCBBC)]
+
+#Note: Code takes care of invalid combinations of number of PNC visits and month PNC began, vars recoded to NA
+
+dataset[, MPCBBC :=
+          ifelse(NPCVBC == 0 & is.null(MPCBBC), 0, MPCBBC)] #If number of visits = 0 and month PNC began is NA, PNC recoded as 0
+
+dataset[, NPCVBC :=
+          ifelse(MPCBBC == 0 & is.null(NPCVBC), 0, NPCVBC)] #Number of visits is NA, number of visits recoded to 0
