@@ -172,3 +172,82 @@ dataset[, MPCBBC :=
 
 dataset[, NPCVBC :=
           ifelse(MPCBBC == 0 & is.null(NPCVBC), 0, NPCVBC)] #Number of visits is NA, number of visits recoded to 0
+
+# *-----------------------------------------------------------------------*
+#   * PART 4: GESTATIONAL AGE EQUIVALENCE *
+#   *-----------------------------------------------------------------------*
+#   * *
+#   * Because gestational age is so frequently missing from birth *
+#   * certificates, a gestational age equivalent is imputed from *
+#   * birth weight (only for those records with gestational age *
+#                     * missing). *
+#   * *
+#   * The following table shows the sex-linked conversion. A *
+#   * variable called GESTIMP has been created to indicate when *
+#   * a substitution is made (GESTATION IMPUTED 1=NO/2=YES). *
+#   * *
+#   *-----------------------------------------------------------------------*
+
+dataset[, GESTIMP :=
+          ifelse(GAGEBC >= 18 & GAGEBC <= 50, 1, 2)] # 1 = NOT IMPUTED, 2 = IMPUTED
+
+#Note: This section of code is broken down into 4 sections for cleanliness, readability, and easier debugging 
+#Note: Original SAS code displayed the following code as 1 long section
+
+#Imputes GAGEBC when SEXBC == 1 for GAGEBC 22-30
+dataset[, GAGEBC :=
+          ifelse(SEXBC == 1 & BWGRAMS >= 530 & BWGRAMS <= 608, 22,
+                 ifelse(SEXBC == 1 & BWGRAMS >= 609 & BWGRAMS <= 698, 23,
+                        ifelse(SEXBC == 1 & BWGRAMS >= 699 & BWGRAMS <= 799, 24,
+                               ifelse(SEXBC == 1 & BWGRAMS >= 800 & BWGRAMS <= 912, 25,
+                                      ifelse(SEXBC == 1 & BWGRAMS >= 913 & BWGRAMS <= 1040, 26,
+                                             ifelse(SEXBC == 1 & BWGRAMS >= 1041 & BWGRAMS <= 1183, 27,
+                                                    ifelse(SEXBC == 1 & BWGRAMS >= 1184 & BWGRAMS <= 1342, 28,
+                                                           ifelse(SEXBC == 1 & BWGRAMS >= 1343 & BWGRAMS <= 1536, 29,
+                                                                  ifelse(SEXBC == 1 & BWGRAMS <= 1537 & BWGRAMS <= 1751, 30, NA)))))))))]
+
+#Imputes GAGEBC when SEXBC == 1 for GAGEBC 31-40
+dataset[, GAGEBC :=
+          ifelse(SEXBC == 1 & BWGRAMS >= 1752 & BWGRAMS <= 1978, 31,
+                 ifelse(SEXBC == 1 & BWGRAMS >= 1979 & BWGRAMS <= 2219, 32,
+                        ifelse(SEXBC == 1 & BWGRAMS >= 2200 & BWGRAMS <= 2458, 33,
+                               ifelse(SEXBC == 1 & BWGRAMS >= 2459 & BWGRAMS <= 2693, 34,
+                                      ifelse(SEXBC == 1 & BWGRAMS >= 2694 & BWGRAMS <= 2909, 35,
+                                             ifelse(SEXBC == 1 & BWGRAMS >= 2910 & BWGRAMS <= 3111, 36,
+                                                    ifelse(SEXBC == 1 & BWGRAMS >= 3112 & BWGRAMS <= 3291, 37,
+                                                           ifelse(SEXBC == 1 & BWGRAMS >= 3292 & BWGRAMS <= 3433, 38,
+                                                                  ifelse(SEXBC == 1 & BWGRAMS >= 3434 & BWGRAMS <= 3533, 39,
+                                                                         ifelse(SEXBC == 1 & BWGRAMS >= 3534 & BWGRAMS <= 6000, 40, NA))))))))))]
+
+#Imputes GAGEBC when SEXBC == 2 for GAGEBC 22-30
+dataset[, GAGEBC :=
+          ifelse(SEXBC == 2 & BWGRAMS >= 496 & BWGRAMS <= 568, 22,
+                 ifelse(SEXBC == 2 & BWGRAMS >= 569 & BWGRAMS <= 650, 23,
+                        ifelse(SEXBC == 2 & BWGRAMS >= 651 & BWGRAMS <= 744, 24,
+                               ifelse(SEXBC == 2 & BWGRAMS >= 745 & BWGRAMS <= 849, 25,
+                                      ifelse(SEXBC == 2 & BWGRAMS >= 850 & BWGRAMS <= 968, 26,
+                                             ifelse(SEXBC == 2 & BWGRAMS >= 969 & BWGRAMS <= 1101, 27,
+                                                    ifelse(SEXBC == 2 & BWGRAMS >= 1102 & BWGRAMS <= 1251, 28,
+                                                           ifelse(SEXBC == 2 & BWGRAMS >= 1252 & BWGRAMS <= 1429, 29,
+                                                                  ifelse(SEXBC == 2 & BWGRAMS >= 1430 & BWGRAMS <= 1636, 30, NA)))))))))]
+
+#Imputes GAGEBC when SEXBC == 2 for GAGEBC 31-40
+dataset[, GAGEBC :=
+          ifelse(SEXBC == 2 & BWGRAMS >= 1637 & BWGRAMS <= 1860, 31,
+                 ifelse(SEXBC == 2 & BWGRAMS >= 1861 & BWGRAMS <= 2089, 32,
+                        ifelse(SEXBC == 2 & BWGRAMS >= 2090 & BWGRAMS <= 2328, 33,
+                               ifelse(SEXBC == 2 & BWGRAMS >= 2329 & BWGRAMS <= 2561, 34,
+                                      ifelse(SEXBC == 2 & BWGRAMS >= 2562 & BWGRAMS <= 2787, 35,
+                                             ifelse(SEXBC == 2 & BWGRAMS >= 2788 & BWGRAMS <= 2991, 36,
+                                                    ifelse(SEXBC == 2 & BWGRAMS >= 2992 & BWGRAMS <= 3160, 37,
+                                                           ifelse(SEXBC == 2 & BWGRAMS >= 3161 & BWGRAMS <= 3293, 38,
+                                                                  ifelse(SEXBC == 2 & BWGRAMS >= 3294 & BWGRAMS <= 3388, 39,
+                                                                         ifelse(SEXBC == 2 & BWGRAMS >= 3389 & BWGRAMS <= 6000, 40, NA))))))))))]
+
+
+#Note (2/16): Some GAGEBC values still don't impute despite valid values for SEXBC and BWGRAMS, debug!
+#Note (2/16): Resume with Part 5 of SAS Code
+
+
+
+
