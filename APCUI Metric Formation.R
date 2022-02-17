@@ -77,7 +77,7 @@ BWGRAMS <- dataset$DBWT
 #   *-----------------------------------------------------------------------*;
 
 dataset[, NPCVBC :=
-          ifelse(PREVIS < 0 | PREVIS > 90, NA, PREVIS)] #ACceptable Values 0-90
+          ifelse(PREVIS < 0 | PREVIS > 90, NA, PREVIS)] #Acceptable Values 0-90
 
 dataset[, MPCBBC :=
           ifelse(PRECARE < 0 | PRECARE > 10, NA, PRECARE)] #Acceptable Values 0-10
