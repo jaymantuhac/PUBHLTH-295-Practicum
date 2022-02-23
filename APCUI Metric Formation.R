@@ -374,3 +374,19 @@ dataset[, NOPNC :=
           ifelse((NPCVBC == 0 & (MPCBBC == 0 | is.na(MPCBBC))) | (MPCBBC == 0 & (NPCVBC == 0 | is.na(NPCVBC))), 1,
                  ifelse(is.na(NPCVBC) | is.na(MPCBBC), NA, 2))]
 
+#Rename column labels for readibility
+
+dataset <- rename(dataset, Number_of_prenatal_care_visits = NPCVBC,
+       Month_prenatal_care_visits_began = MPCBBC,
+       Sex_of_infant = SEXBC,
+       Gestational_age_in_weeks = GAGEBC,
+       Birth_weight_in_grams = BWGRAMS,
+       Unadjusted_expected_prenatal_care_visits = UEXPVIS,
+       Expected_prenatal_care_visits = EXPVIS,
+       Expected_visit_ratio = EVRATIO,
+       Expected_visit_index = EVINDEX,
+       Month_prenatal_care_initiation_index = MOINDEX4,
+       Two_factor_summary_index = INDEXSUM,
+       Gestational_age_imputation_marker = GESTIMP,
+       No_prenatal_care_received = NOPNC)
+
