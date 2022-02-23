@@ -88,7 +88,7 @@ dataset[, GAGEBC :=
           ifelse(COMBGEST < 18 | COMBGEST > 50, NA, COMBGEST)] #Acceptable values 18-50
 
 dataset[, MPCBBC :=
-          ifelse(is.null(GAGEBC) & (MPCBBC > (GAGEBC/4)), NA, MPCBBC)] #Omits inconsistent values of MPCBBC OR GAGEBC
+          ifelse(is.na(GAGEBC) & (MPCBBC > (GAGEBC/4)), NA, MPCBBC)] #Omits inconsistent values of MPCBBC OR GAGEBC
 
 dataset[, SEXBC :=
           ifelse(SEX == 'M', 1, 2)] #Acceptable values 1 (MALE),2 (FEMALE) - Unknown SEX = FEMALE (2)
@@ -168,10 +168,10 @@ dataset[, MPCBBC :=
 #Note: Code takes care of invalid combinations of number of PNC visits and month PNC began, vars recoded to NA
 
 dataset[, MPCBBC :=
-          ifelse(NPCVBC == 0 & is.null(MPCBBC), 0, MPCBBC)] #If number of visits = 0 and month PNC began is NA, PNC recoded as 0
+          ifelse(NPCVBC == 0 & is.na(MPCBBC), 0, MPCBBC)] #If number of visits = 0 and month PNC began is NA, PNC recoded as 0
 
 dataset[, NPCVBC :=
-          ifelse(MPCBBC == 0 & is.null(NPCVBC), 0, NPCVBC)] #Number of visits is NA, number of visits recoded to 0
+          ifelse(MPCBBC == 0 & is.na(NPCVBC), 0, NPCVBC)] #Number of visits is NA, number of visits recoded to 0
 
 # *-----------------------------------------------------------------------*
 #   * PART 4: GESTATIONAL AGE EQUIVALENCE *
@@ -217,7 +217,7 @@ dataset[, GAGEBC :=
                                                     ifelse(SEXBC == 1 & BWGRAMS >= 3112 & BWGRAMS <= 3291, 37,
                                                            ifelse(SEXBC == 1 & BWGRAMS >= 3292 & BWGRAMS <= 3433, 38,
                                                                   ifelse(SEXBC == 1 & BWGRAMS >= 3434 & BWGRAMS <= 3533, 39,
-                                                                         ifelse(SEXBC == 1 & BWGRAMS >= 3534 & BWGRAMS <= 6000, 40, NA))))))))))]
+                                                                         ifelse(SEXBC == 1 & BWGRAMS >= 3534 & BWGRAMS <= 6000, 40, GAGEBC))))))))))]
 
 #Imputes GAGEBC when SEXBC == 2 for GAGEBC 22-30
 dataset[, GAGEBC :=
@@ -229,7 +229,7 @@ dataset[, GAGEBC :=
                                              ifelse(SEXBC == 2 & BWGRAMS >= 969 & BWGRAMS <= 1101, 27,
                                                     ifelse(SEXBC == 2 & BWGRAMS >= 1102 & BWGRAMS <= 1251, 28,
                                                            ifelse(SEXBC == 2 & BWGRAMS >= 1252 & BWGRAMS <= 1429, 29,
-                                                                  ifelse(SEXBC == 2 & BWGRAMS >= 1430 & BWGRAMS <= 1636, 30, NA)))))))))]
+                                                                  ifelse(SEXBC == 2 & BWGRAMS >= 1430 & BWGRAMS <= 1636, 30, GAGEBC)))))))))]
 
 #Imputes GAGEBC when SEXBC == 2 for GAGEBC 31-40
 dataset[, GAGEBC :=
@@ -242,12 +242,23 @@ dataset[, GAGEBC :=
                                                     ifelse(SEXBC == 2 & BWGRAMS >= 2992 & BWGRAMS <= 3160, 37,
                                                            ifelse(SEXBC == 2 & BWGRAMS >= 3161 & BWGRAMS <= 3293, 38,
                                                                   ifelse(SEXBC == 2 & BWGRAMS >= 3294 & BWGRAMS <= 3388, 39,
-                                                                         ifelse(SEXBC == 2 & BWGRAMS >= 3389 & BWGRAMS <= 6000, 40, NA))))))))))]
+                                                                         ifelse(SEXBC == 2 & BWGRAMS >= 3389 & BWGRAMS <= 6000, 40, GAGEBC))))))))))]
 
+# *-----------------------------------------------------------------------*
+#   * PART 5: CALCULATION OF ADEQUACY OF INITIATION *
+#   * OF PRENATAL CARE INDEX *
+#   *-----------------------------------------------------------------------*
+#   * *
+#   * This section calculates the adequacy of initiation of *
+#   * prenatal care. This section is basically a straightforward *
+#   * recoding of month prenatal care began. *
+#   * *
+#   * Coding: 1=INADEQUATE 2=INTERMEDIATE 3=ADEQUATE 4=ADEQUATE
+# PLUS *
+#   * 0=MISSING INFORMATION *
+#   * *
+#   *-----------------------------------------------------------------------*
 
-#Note (2/16): Some GAGEBC values still don't impute despite valid values for SEXBC and BWGRAMS, debug!
-#Note (2/16): Resume with Part 5 of SAS Code
-
-
-
+dataset[, MOINDEX4 :=
+          ifelse(NPCVBC ==0 | is.na())]
 
