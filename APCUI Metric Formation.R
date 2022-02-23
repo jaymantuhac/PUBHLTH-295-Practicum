@@ -259,6 +259,80 @@ dataset[, GAGEBC :=
 #   * *
 #   *-----------------------------------------------------------------------*
 
-dataset[, MOINDEX4 :=
-          ifelse(NPCVBC ==0 | is.na())]
+dataset[, MOINDEX4 := 
+          ifelse(is.na(MPCBBC) | is.na(NPCVBC) | NPCVBC == 0, 0, 0)]
 
+dataset[, MOINDEX4 :=
+          ifelse(MPCBBC >= 1 & MPCBBC <= 2, 4,
+                 ifelse(MPCBBC >= 3 & MPCBBC <= 4, 3,
+                        ifelse(MPCBBC >= 5 & MPCBBC <= 6, 2, 1)))]
+
+#Note: Some MOINDEX values show up as NA, ideally should show up as 0s. May need to debug if absolutely necessary.
+
+# *-----------------------------------------------------------------------*
+#   * PART 6: EXPECTED VISITS CALCULATIONS AND RECEIVED PRENATAL
+# CARE *
+#   * SERVICES INDEX *
+#   *-----------------------------------------------------------------------*
+#   * *
+#   * This section calculates the Adequacy of Received Prenatal Care *
+#   * Services Index. *
+#   * *
+#   * Two principal steps are involved. The first step determines the *
+#   * EXPECTED VISITS for each pregnancy (which requires establishing *
+#                                           
+#                                           * the recommended visits for the gestational age and then an *
+#                                           * adjustment for the timing of the initiation of care). The second *
+#   * step calculates the EXPECTED VISIT RATIO (OBSERVED / EXPECTED) *
+#   * which is then directly converted to the Received Prenatal Care *
+#   * Services Index. *
+#   * *
+#   *-----------------------------------------------------------------------*
+
+#Initialize expected and unadjusted expected visits
+dataset[, `:=` (
+  EXPVIS = NA,
+  UEXPVIS = NA
+)]
+
+dataset[, UEXPVIS:=
+          ifelse(GAGEBC >= 35, (GAGEBC-35)+9,
+                 ifelse(GAGEBC == 34, 9,
+                        ifelse(GAGEBC >= 32, 8, 
+                               ifelse(GAGEBC >= 30, 7,
+                                      ifelse(GAGEBC >= 26, 6,
+                                             ifelse(GAGEBC >= 22, 5, 
+                                                    ifelse(GAGEBC >= 18, 4,
+                                                           ifelse(GAGEBC >= 14, 3,
+                                                                  ifelse(GAGEBC >= 10, 2,
+                                                                         ifelse(GAGEBC >= 6, 1, 0))))))))))]
+
+#Final step of expected visits calculation adjusts for month of prenatal care initiation
+dataset[, EXPVIS := 
+          ifelse(is.na(MPCBBC) | MPCBBC ==0, UEXPVIS,
+                 ifelse(MPCBBC == 10, UEXPVIS - 17,
+                        ifelse(MPCBBC == 9, UEXPVIS - 13,
+                               ifelse(MPCBBC == 8, UEXPVIS - 9,
+                                      ifelse(MPCBBC == 7, UEXPVIS - 7,
+                                             ifelse(MPCBBC == 6, UEXPVIS - 6,
+                                                    ifelse(MPCBBC == 5, UEXPVIS - 5,
+                                                           ifelse(MPCBBC == 4, UEXPVIS - 3,
+                                                                  ifelse(MPCBBC == 3, UEXPVIS - 2,
+                                                                         ifelse(MPCBBC == 2, UEXPVIS - 1,
+                                                                                ifelse(MPCBBC == 1, UEXPVIS, 1)))))))))))]
+
+#Calculation of observed/expected ratio (expected visits ratio)
+dataset[, EVRATIO := (NPCVBC/EXPVIS) * 100]
+
+# *** Calculation of adequacy of received service (expected visits) index
+# Coding: 1=INADEQUATE 2=INTERMEDIATE 3=ADEQUATE 4=ADEQUATE
+# PLUS
+# 0=MISSING INFORMATION;
+
+dataset[, EVINDEX := 
+          ifelse(is.na(EVRATIO), 0,
+                 ifelse(is.na(MPCBBC), 0,
+                        ifelse(EVRATIO > 109.99, 4,
+                               ifelse(EVRATIO > 79.99 & EVRATIO <= 109.99, 3,
+                                      ifelse(EVRATIO > 49.99 & EVRATIO <= 79.99, 2,
+                                             ifelse(EVRATIO <= 49.99, 1, NA))))))]
