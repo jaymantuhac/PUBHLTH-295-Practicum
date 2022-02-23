@@ -336,3 +336,41 @@ dataset[, EVINDEX :=
                                ifelse(EVRATIO > 79.99 & EVRATIO <= 109.99, 3,
                                       ifelse(EVRATIO > 49.99 & EVRATIO <= 79.99, 2,
                                              ifelse(EVRATIO <= 49.99, 1, NA))))))]
+
+# *-----------------------------------------------------------------------*
+#   * PART 7: CALCULATION OF SUMMATIVE TWO FACTOR ADEQUACY OF
+# *
+#   * PRENATAL CARE UTILIZATION INDEX *
+#   *-----------------------------------------------------------------------*
+#   * *
+#   * This section combines the two previously derived factors, *
+#   * Adequacy of Initiation of Prenatal Care Index (MOINDEX4) and *
+#   * Adequacy of Received Prenatal Care Services Index (EVINDEX) *
+#   * into a single summative Adequacy of Prenatal Care Utilization *
+#   * Index. *
+#   * *
+#   * Coding: 1=INADEQUATE 2=INTERMEDIATE 3=ADEQUATE 4=ADEQUATE
+# PLUS *
+#   * 0=MISSING INFORMATION *
+#   * *
+#   *-----------------------------------------------------------------------*
+
+
+dataset[, INDEXSUM := NA]
+dataset[, INDEXSUM :=
+          ifelse(EVINDEX == 0 | MOINDEX4 == 0, 0,
+                 ifelse(EVINDEX == 1 | (MOINDEX4 >= 1 & MOINDEX4 <= 2), 1,
+                        ifelse(EVINDEX == 3 & (MOINDEX4 >= 3 & MOINDEX4 <= 4), 3,
+                               ifelse(EVINDEX == 4 & (MOINDEX4 >= 3 & MOINDEX4 <= 4), 4, 2))))]
+
+# *---------------------------------------------------------------------*
+#   * PART 8: ADDITIONAL STATISTICAL CALCULATIONS WOULD GO IN *
+#   * THIS SECTION *
+#   *---------------------------------------------------------------------*
+
+#Create variable to flag observations with no PNC
+#Coding: 1 = no PNC, 2 = some PNC, NA = no PNC
+dataset[, NOPNC :=
+          ifelse((NPCVBC == 0 & (MPCBBC == 0 | is.na(MPCBBC))) | (MPCBBC == 0 & (NPCVBC == 0 | is.na(NPCVBC))), 1,
+                 ifelse(is.na(NPCVBC) | is.na(MPCBBC), NA, 2))]
+
