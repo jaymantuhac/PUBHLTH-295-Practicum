@@ -4,7 +4,7 @@ libraries("car", "data.table", "dplyr", "formattable", "foreign", "forcats", "fo
           "ggplot2", "here", "knitr", "qwraps2", "RcmdrMisc", "tableone", "tidyr", 
           "sjPlot", "sjmisc", "sjlabelled", "tidyverse", "weights", "tableone")
 
-dataset <- data_us_2020_sample
+dataset <- data_us_2020
 # *-----------------------------------------------------------------------*
 #   * PART 1: VARIABLE DEFINITIONS *
 #   *-----------------------------------------------------------------------*
@@ -374,7 +374,7 @@ dataset[, NOPNC :=
           ifelse((NPCVBC == 0 & (MPCBBC == 0 | is.na(MPCBBC))) | (MPCBBC == 0 & (NPCVBC == 0 | is.na(NPCVBC))), 1,
                  ifelse(is.na(NPCVBC) | is.na(MPCBBC), NA, 2))]
 
-#Rename column labels for readibility
+#Rename column labels for readability
 
 dataset <- rename(dataset, Number_of_prenatal_care_visits = NPCVBC,
        Month_prenatal_care_visits_began = MPCBBC,
@@ -389,4 +389,13 @@ dataset <- rename(dataset, Number_of_prenatal_care_visits = NPCVBC,
        Two_factor_summary_index = INDEXSUM,
        Gestational_age_imputation_marker = GESTIMP,
        No_prenatal_care_received = NOPNC)
+
+#Adds Census-defined racial categories to dataset (not part of original SAS code)
+dataset[, race_cat :=
+          ifelse(MRACEHISP == 1, "Non-Hispanic White",
+                 ifelse(MRACEHISP == 2, "Non-Hispanic Black",
+                        ifelse(MRACEHISP == 3, "Non-Hispanic AIAN",
+                               ifelse(MRACEHISP == 4, "Non-Hispanic Asian",
+                                      ifelse(MRACEHISP == 5, "Non-Hispanic Native Hawaiian/Pacific Islander",
+                                             ifelse(MRACEHISP == 7, "Hispanic", "Other"))))))]
 
