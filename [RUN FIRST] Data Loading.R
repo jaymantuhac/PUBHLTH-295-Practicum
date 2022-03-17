@@ -16,3 +16,4 @@ data_us_2019_sample <- data.table(head(data_us_2019, 100))
 data_us_2020 <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Data/2020 Natality Data/birth_2020_nber_us.csv')
 data_us_2020 <- data.table(data_us_2020)
 data_us_2020_sample <- data.table(head(data_us_2020, 100))
+
