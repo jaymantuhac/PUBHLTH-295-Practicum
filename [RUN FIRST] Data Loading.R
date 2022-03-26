@@ -17,6 +17,10 @@ data_us_2020 <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/
 data_us_2020 <- data.table(data_us_2020)
 data_us_2020_sample <- data.table(head(data_us_2020, 100))
 
-data_us_2018_2020_combined <- data.table(data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Data/2018_2020_combined_data.csv'))
-data_us_2018_2020_combined_sample <- data.table(head(data_us_2018_2020_combined, 100))
+data_us_2018_2020_combined <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Data/2018_2020_combined_data.csv')
+data_us_2018_2020_combined <- data.table(data_us_2018_2020_combined)
+data_us_2018_2020_combined_sample <- data.table(sample_n(data_us_2018_2020_combined, 1000))
+
+data_us_2018_2020_combined_PI <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Data/2018_2020_PI_sample.csv')
+data_us_2018_2020_combined_PI <- data.table(data_us_2018_2020_combined_PI)
 
