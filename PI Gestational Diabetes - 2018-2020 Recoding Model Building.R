@@ -5,10 +5,13 @@ libraries("car", "data.table", "dplyr", "formattable", "foreign", "forcats", "fo
           "sjPlot", "sjmisc", "sjlabelled", "tidyverse", "weights", "tableone")
 
 #Access Pacific Islander Sample
-data_us_2018_2020_combined_PI <- data_us_2018_2020_combined %>% 
+data_us_2018_2020_combined_PI <- full_dataset %>% 
   filter(between(MRACE15, 11, 14))
 
-#Recode Gestational Diabetes Column - need to run?
+write.csv(data_us_2018_2020_combined_PI, "/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay's Practicum /Data/2018_2020_PI_sample.csv ")
+
+
+#Recode Gestational Diabetes Column
 data_us_2018_2020_combined_PI[, GESTATIONAL_DIABETES :=
                                     ifelse(RF_GDIAB == "Y", 1, 
                                            ifelse(RF_GDIAB == "N", 0, NA))]
@@ -250,7 +253,9 @@ data_us_2018_2020_combined_PI[, EDUCATION_RECODE :=
                                               ifelse(MEDUC != 9, "Any college", NA)))]
 
 
-#Note: Age variable coded as MAGER
+#Advanced age recoding
+data_us_2018_2020_combined_PI[, ADVANCED_AGE :=
+                                ifelse(MAGER >= 35, 1, 0)]
 
 #Logistic Regression Model
 model1 <- glm(GESTATIONAL_DIABETES ~ RACE_RECODE + RF_PDIAB +
@@ -260,4 +265,10 @@ model1 <- glm(GESTATIONAL_DIABETES ~ RACE_RECODE + RF_PDIAB +
 summary(model1)
 tab_model(model1)
 
+model2 <- glm(GESTATIONAL_DIABETES ~ RACE_RECODE + 
+                BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
+                INSURANCE + WIC + EDUCATION_RECODE + ADVANCED_AGE, data = data_us_2018_2020_combined_PI,
+              family = binomial(link = "logit"))
+summary(model2)
+tab_model(model2)
 
