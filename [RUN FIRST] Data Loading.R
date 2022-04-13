@@ -24,3 +24,15 @@ data_us_2018_2020_combined_sample <- data.table(sample_n(data_us_2018_2020_combi
 data_us_2018_2020_combined_PI <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Data/2018_2020_PI_sample.csv')
 data_us_2018_2020_combined_PI <- data.table(data_us_2018_2020_combined_PI)
 
+data_2018_restricted <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2018us.csv')
+data_2018_restricted <- data.table(data_2018_restricted)
+
+data_2019_restricted <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2019us.csv')
+data_2019_restricted <- data.table(data_2019_restricted)
+
+data_2020_restricted <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2020us.csv')
+data_2020_restricted <- data.table(data_2020_restricted)
+
+data_2018_restricted_PI <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2018us_PIsample.csv')
+data_2019_restricted_PI <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2019us_PIsample.csv')
+data_2020_restricted_PI <- data.table::fread('/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2020us_PIsample.csv')

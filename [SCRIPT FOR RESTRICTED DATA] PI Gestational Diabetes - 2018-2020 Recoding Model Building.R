@@ -4,17 +4,26 @@ libraries("car", "crosstable", "data.table", "dplyr", "formattable", "foreign", 
           "ggplot2", "here", "knitr", "pander", "qwraps2", "RcmdrMisc", "tableone", "tidyr", 
           "sjPlot", "sjmisc", "sjlabelled", "tidyverse", "weights", "tableone")
 
-#Access Pacific Islander Sample
-data_us_2018_2020_combined_PI <- data_us_2018_2020_combined %>% 
-  filter(between(MRACE15, 11, 14))
 
-write.csv(data_us_2018_2020_combined_PI, "/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay's Practicum /Data/2018_2020_PI_sample.csv ")
+#Access Pacific Islander Samples data + generate 2018-2020 combined PI sample data
+data_2018_restricted_PI <- data_2018_restricted %>% filter(between(mrace15, 11, 14))
+write.csv(data_2018_restricted_PI, '/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2018us_PIsample.csv')
+
+data_2019_restricted_PI <- data_2019_restricted %>% filter(between(mrace15, 11, 14))
+write.csv(data_2019_restricted_PI, '/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2019us_PIsample.csv')
+
+data_2020_restricted_PI <- data_2020_restricted %>% filter(between(mrace15, 11, 14))
+write.csv(data_2020_restricted_PI, '/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/natl2020us_PIsample.csv')
+
+data_2018_2019_restricted_PI <- rbind(data_2018_restricted_PI, data_2019_restricted_PI)
+data_2018_2020_restricted_PI <- rbind(data_2018_2019_restricted_PI, data_2020_restricted_PI)
+write.csv(data_2018_2020_restricted_PI, '/Volumes/GoogleDrive/.shortcut-targets-by-id/1mMR8JnKiUsIMKqX4IrbhCiI5mv5tvNEu/Jay\'s Practicum /Restricted Data/restricted_2018_2020_PIsample.csv')
 
 
 #Recode Gestational Diabetes Column
 data_us_2018_2020_combined_PI[, GESTATIONAL_DIABETES :=
-                                    ifelse(RF_GDIAB == "Y", 1, 
-                                           ifelse(RF_GDIAB == "N", 0, NA))]
+                                ifelse(RF_GDIAB == "Y", 1, 
+                                       ifelse(RF_GDIAB == "N", 0, NA))]
 
 #APCUI Measurement Construction
 
@@ -201,12 +210,12 @@ data_us_2018_2020_combined_PI <- rename(data_us_2018_2020_combined_PI, Number_of
 
 #Recode Race/Ethnicity Variable
 data_us_2018_2020_combined_PI[, RACE_RECODE :=
-                                       ifelse(MRACE15 == 11, "Hawaiian", 
-                                              ifelse(MRACE15 == 12, "Guamanian",
-                                                     ifelse(MRACE15 == 13 & MBSTATE_REC == 1, "Samoan (US Born)",
-                                                            ifelse(MRACE15 == 13 & MBSTATE_REC == 2, "Samoan (Non-US Born)",
-                                                                   ifelse(MRACE15 == 14 & MBSTATE_REC == 1, "Other Pacific Islander (US Born)",
-                                                                          ifelse(MRACE15 == 14 & MBSTATE_REC == 2, "Other Pacific Islander (Non-US Born)", NA))))))]
+                                ifelse(MRACE15 == 11, "Hawaiian", 
+                                       ifelse(MRACE15 == 12, "Guamanian",
+                                              ifelse(MRACE15 == 13 & MBSTATE_REC == 1, "Samoan (US Born)",
+                                                     ifelse(MRACE15 == 13 & MBSTATE_REC == 2, "Samoan (Non-US Born)",
+                                                            ifelse(MRACE15 == 14 & MBSTATE_REC == 1, "Other Pacific Islander (US Born)",
+                                                                   ifelse(MRACE15 == 14 & MBSTATE_REC == 2, "Other Pacific Islander (Non-US Born)", NA))))))]
 
 data_us_2018_2020_combined_PI$RACE_RECODE <- as.factor(data_us_2018_2020_combined_PI$RACE_RECODE)
 
@@ -215,8 +224,8 @@ levels(data_us_2018_2020_combined_PI$RACE_RECODE) <- c("Hawaiian", "Guamanian", 
 
 #Pre-pregnancy Diabetes Recoding
 data_us_2018_2020_combined_PI[, RF_PDIAB :=
-                                       ifelse(RF_PDIAB == "Y", 1, 
-                                              ifelse(RF_PDIAB == "N", 0, NA))]
+                                ifelse(RF_PDIAB == "Y", 1, 
+                                       ifelse(RF_PDIAB == "N", 0, NA))]
 
 
 #BMI Recoding
@@ -267,7 +276,7 @@ gestational_diabetes_xtab
 bmi25_xtab <- data_us_2018_2020_combined_PI %>% 
   group_by_at(c("RACE_RECODE")) %>% 
   summarize_at(c("BMI25"), 
-            list(mean =~ mean(.), sd =~ sd(.)))
+               list(mean =~ mean(.), sd =~ sd(.)))
 bmi25_xtab
 
 bmi30_xtab <- data_us_2018_2020_combined_PI %>% 
@@ -328,4 +337,3 @@ model2 <- glm(GESTATIONAL_DIABETES ~ RACE_RECODE +
               family = binomial(link = "logit"))
 summary(model2)
 tab_model(model2)
-  
