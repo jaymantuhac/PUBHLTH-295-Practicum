@@ -312,3 +312,31 @@ prop.table(table(data_2018_2020_restricted_Asian$EDUCATION_RECODE))
 prop.table(table(data_2018_2020_restricted_CA$EDUCATION_RECODE))
 prop.table(table(data_2018_2020_restricted_AZ$EDUCATION_RECODE))
 
+
+
+levels(data_2018_2020_restricted_Asian$EDUCATION_RECODE) <- c("Some high school or less", "High school graduate", "Any college", "Bachelors and Beyond")
+levels(data_2018_2020_restricted_CA$EDUCATION_RECODE) <- c("Some high school or less", "High school graduate", "Any college", "Bachelors and Beyond")
+levels(data_2018_2020_restricted_AZ$EDUCATION_RECODE) <- c("Some high school or less", "High school graduate", "Any college", "Bachelors and Beyond")
+
+#Logistic Regression Models
+model_full <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
+                BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
+                INSURANCE + WIC + EDUCATION_RECODE + MAGER, data = data_2018_2020_restricted_Asian,
+              family = binomial(link = "logit"))
+summary(model_full)
+
+model_CA <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
+                  BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
+                  INSURANCE + WIC + EDUCATION_RECODE + MAGER, data = data_2018_2020_restricted_CA,
+                family = binomial(link = "logit"))
+summary(model_CA)
+
+model_AZ <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
+                  BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
+                  INSURANCE + WIC + EDUCATION_RECODE + MAGER, data = data_2018_2020_restricted_AZ,
+                family = binomial(link = "logit"))
+summary(model_AZ)
+
+tab_model(model_full, model_CA, model_AZ,
+          dv.labels = c("US Model", "CA Model", "AZ Model"))
+
