@@ -225,7 +225,12 @@ data_2018_2020_restricted[, BMI30 :=
 
 #Inadequate Access to Care (Note: Make sure to run "APCUI Metric Formation" script on dataset before running!)
 data_2018_2020_restricted[, INADEQUATE_PRENATAL_CARE :=
-                                ifelse(Two_factor_summary_index == 1, 1, 0)]
+                                ifelse(PRECARE5 == 2 | PRECARE5 == 3 | PRECARE5 == 4, 1,
+                                       ifelse(PRECARE == 1, 0, NA))]
+
+data_2018_2020_restricted[, ADEQUATE_PRENATAL_CARE := 
+                            ifelse(PRECARE5 == 1, 1, 
+                                   ifelse(PRECARE5 == 5, NA, 0))]
 
 #Insurance Recoding
 data_2018_2020_restricted[, INSURANCE :=
@@ -250,6 +255,8 @@ data_2018_2020_restricted[, EDUCATION_RECODE :=
                                               ifelse(MEDUC == 4 | MEDUC == 5, "Any college", 
                                                      ifelse(MEDUC != 9, "Bachelors and Beyond", NA))))]
 
+levels(data_2018_2020_restricted$EDUCATION_RECODE) <- c("Bachelors and Beyond", "Any college", "High school graduate", "Some high school or less")
+
 
 #Advanced age recoding
 data_2018_2020_restricted[, ADVANCED_AGE :=
@@ -265,12 +272,19 @@ data_2018_2020_restricted[, AZN_ETHNICITY_RECODE :=
                                                                ifelse(MRACE15 == 9, "Vietnamese",
                                                                       ifelse(MRACE15 == 10, "Other Asian", NA)))))))]
 
-
-
+#Asian subsample and ethnicity/education recoding
 data_2018_2020_restricted_Asian <- data_2018_2020_restricted %>% subset(RACE_CAT == "Non-Hispanic Asian")
 
-data_2018_2020_restricted_AZ <- data_2018_2020_restricted %>% subset(MRTERR == "AZ" & RACE_CAT == "Non-Hispanic Asian")
-data_2018_2020_restricted_CA <- data_2018_2020_restricted %>% subset(MRTERR == "CA" & RACE_CAT == "Non-Hispanic Asian")
+data_2018_2020_restricted_Asian$AZN_ETHNICITY_RECODE <- as.factor(data_2018_2020_restricted_Asian$AZN_ETHNICITY_RECODE)
+data_2018_2020_restricted_Asian$AZN_ETHNICITY_RECODE <- relevel(data_2018_2020_restricted_Asian$AZN_ETHNICITY_RECODE, ref = "Chinese")
+
+data_2018_2020_restricted_Asian$EDUCATION_RECODE <- as.factor(data_2018_2020_restricted_Asian$EDUCATION_RECODE)
+data_2018_2020_restricted_Asian$EDUCATION_RECODE <- relevel(data_2018_2020_restricted_Asian$EDUCATION_RECODE, ref = "Bachelors and Beyond")
+
+#Extract CA and AZ subsamples of Asian data
+data_2018_2020_restricted_AZ <- data_2018_2020_restricted_Asian %>% subset(MRTERR == "AZ")
+data_2018_2020_restricted_CA <- data_2018_2020_restricted_Asian %>% subset(MRTERR == "CA")
+
 
 #Descriptives: Gestational Diabetes
 prop.table(table(data_2018_2020_restricted_Asian$GESTATIONAL_DIABETES))
@@ -312,31 +326,78 @@ prop.table(table(data_2018_2020_restricted_Asian$EDUCATION_RECODE))
 prop.table(table(data_2018_2020_restricted_CA$EDUCATION_RECODE))
 prop.table(table(data_2018_2020_restricted_AZ$EDUCATION_RECODE))
 
-
+#Descriptives: Adequate Prenatal Care
+prop.table(table(data_2018_2020_restricted_Asian$ADEQUATE_PRENATAL_CARE))
+prop.table(table(data_2018_2020_restricted_CA$ADEQUATE_PRENATAL_CARE))
+prop.table(table(data_2018_2020_restricted_AZ$ADEQUATE_PRENATAL_CARE))
 
 levels(data_2018_2020_restricted_Asian$EDUCATION_RECODE) <- c("Some high school or less", "High school graduate", "Any college", "Bachelors and Beyond")
 levels(data_2018_2020_restricted_CA$EDUCATION_RECODE) <- c("Some high school or less", "High school graduate", "Any college", "Bachelors and Beyond")
 levels(data_2018_2020_restricted_AZ$EDUCATION_RECODE) <- c("Some high school or less", "High school graduate", "Any college", "Bachelors and Beyond")
 
+
+
 #Logistic Regression Models
 model_full <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
                 BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
-                INSURANCE + WIC + EDUCATION_RECODE + MAGER, data = data_2018_2020_restricted_Asian,
+                INSURANCE + WIC_R + EDUCATION_RECODE + ADVANCED_AGE, data = data_2018_2020_restricted_Asian,
               family = binomial(link = "logit"))
 summary(model_full)
 
 model_CA <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
                   BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
-                  INSURANCE + WIC + EDUCATION_RECODE + MAGER, data = data_2018_2020_restricted_CA,
+                  INSURANCE + WIC_R + EDUCATION_RECODE + ADVANCED_AGE, data = data_2018_2020_restricted_CA,
                 family = binomial(link = "logit"))
 summary(model_CA)
 
 model_AZ <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
                   BMI25 + BMI30 + INADEQUATE_PRENATAL_CARE +
-                  INSURANCE + WIC + EDUCATION_RECODE + MAGER, data = data_2018_2020_restricted_AZ,
+                  INSURANCE + WIC_R + EDUCATION_RECODE + ADVANCED_AGE, data = data_2018_2020_restricted_AZ,
                 family = binomial(link = "logit"))
 summary(model_AZ)
 
 tab_model(model_full, model_CA, model_AZ,
           dv.labels = c("US Model", "CA Model", "AZ Model"))
 
+#Diagnostics for INADEQUATE_PRENATAL CARE models
+car::vif(model_full)
+car::vif(model_CA)
+car::vif((model_AZ)) #No issues with multicollinearity
+
+plot(model_full, which = 4, id.n = 3)
+plot(model_CA, which = 4, id.n = 3)
+plot(model_AZ, which = 4, id.n = 3)
+
+
+#Models with ADEQUATE_PRENATAL_CARE
+
+#Logistic Regression Models
+model_full2 <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
+                    BMI25 + BMI30 + ADEQUATE_PRENATAL_CARE +
+                    INSURANCE + WIC_R + EDUCATION_RECODE + ADVANCED_AGE, data = data_2018_2020_restricted_Asian,
+                  family = binomial(link = "logit"))
+summary(model_full2)
+
+model_CA2 <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
+                  BMI25 + BMI30 + ADEQUATE_PRENATAL_CARE +
+                  INSURANCE + WIC_R + EDUCATION_RECODE + ADVANCED_AGE, data = data_2018_2020_restricted_CA,
+                family = binomial(link = "logit"))
+summary(model_CA2)
+
+model_AZ2 <- glm(GESTATIONAL_DIABETES ~ AZN_ETHNICITY_RECODE + 
+                  BMI25 + BMI30 + ADEQUATE_PRENATAL_CARE +
+                  INSURANCE + WIC_R + EDUCATION_RECODE + ADVANCED_AGE, data = data_2018_2020_restricted_AZ,
+                family = binomial(link = "logit"))
+summary(model_AZ2)
+
+tab_model(model_full2, model_CA2, model_AZ2,
+          dv.labels = c("US Model", "CA Model", "AZ Model"))
+
+#Diagnostics for ADEQUATE_PRENATAL CARE models
+car::vif(model_full2)
+car::vif(model_CA2)
+car::vif((model_AZ2))
+
+plot(model_full2, which = 4, id.n = 3)
+plot(model_CA2, which = 4, id.n = 3)
+plot(model_AZ2, which = 4, id.n = 3)
