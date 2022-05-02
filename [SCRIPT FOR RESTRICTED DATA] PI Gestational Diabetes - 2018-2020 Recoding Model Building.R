@@ -209,18 +209,13 @@ data_us_2018_2020_combined_PI <- rename(data_us_2018_2020_combined_PI, Number_of
                                         No_prenatal_care_received = NOPNC)
 
 #Recode Race/Ethnicity Variable
-data_us_2018_2020_combined_PI[, RACE_RECODE :=
-                                ifelse(MRACE15 == 11, "Hawaiian", 
-                                       ifelse(MRACE15 == 12, "Guamanian",
-                                              ifelse(MRACE15 == 13 & MBSTATE_REC == 1, "Samoan (US Born)",
-                                                     ifelse(MRACE15 == 13 & MBSTATE_REC == 2, "Samoan (Non-US Born)",
-                                                            ifelse(MRACE15 == 14 & MBSTATE_REC == 1, "Other Pacific Islander (US Born)",
-                                                                   ifelse(MRACE15 == 14 & MBSTATE_REC == 2, "Other Pacific Islander (Non-US Born)", NA))))))]
-
-data_us_2018_2020_combined_PI$RACE_RECODE <- as.factor(data_us_2018_2020_combined_PI$RACE_RECODE)
-
-levels(data_us_2018_2020_combined_PI$RACE_RECODE) <- c("Hawaiian", "Guamanian", "Samoan (US Born)", "Samoan (Non-US Born)",
-                                                       "Other Pacific Islander (US Born)", "Other Pacific Islander (Non-US Born)")
+data_2018_2020_restricted[, RACE_CAT :=
+               ifelse(MRACEHISP == 1, "Non-Hispanic White",
+                      ifelse(MRACEHISP == 2, "Non-Hispanic Black",
+                             ifelse(MRACEHISP == 3, "Non-Hispanic AIAN",
+                                    ifelse(MRACEHISP == 4, "Non-Hispanic Asian",
+                                           ifelse(MRACEHISP == 5, "Non-Hispanic Native Hawaiian/Pacific Islander",
+                                                  ifelse(MRACEHISP == 7, "Hispanic", "Other"))))))]
 
 #Pre-pregnancy Diabetes Recoding
 data_us_2018_2020_combined_PI[, RF_PDIAB :=
